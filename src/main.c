@@ -99,7 +99,18 @@ int main(int argc, char *argv[]) {
 	if(start_argv >= argc)
 		return usage(argv);
 
+	Dl_info dli;
+	dladdr(own_dir, &dli);
+	if (dli.dli_fname[0] == '/')
+		set_own_dir(dli.dli_fname);
+	else if (readlink("/proc/self/exe", own_dir, sizeof(own_dir)) < sizeof(own_dir))
+		set_own_dir(own_dir);
+	else
+		set_own_dir(argv[0]);
+
 	/* check if path of config file has not been passed via command line */
+	if (!path)
+		snprintf((path=pbuf), sizeof(pbuf), "%s/"PROXYCHAINS_CONF_FILE, own_dir);
 	path = get_config_path(path, pbuf, sizeof(pbuf));
 
 	if(!quiet)
@@ -113,15 +124,6 @@ int main(int argc, char *argv[]) {
 
 
 	// search DLL
-
-	Dl_info dli;
-	dladdr(own_dir, &dli);
-	if (dli.dli_fname[0] == '/')
-		set_own_dir(dli.dli_fname);
-	else if (readlink("/proc/self/exe", own_dir, sizeof(own_dir)) < sizeof(own_dir))
-		set_own_dir(own_dir);
-	else
-		set_own_dir(argv[0]);
 
 	i = 0;
 
