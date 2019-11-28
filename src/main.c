@@ -115,7 +115,12 @@ int main(int argc, char *argv[]) {
 
 	Dl_info dli;
 	dladdr(own_dir, &dli);
-	set_own_dir(dli.dli_fname);
+	if (dli.dli_fname[0] == '/')
+		set_own_dir(dli.dli_fname);
+	else if (readlink("/proc/self/exe", own_dir, sizeof(own_dir)) < sizeof(own_dir))
+		set_own_dir(own_dir);
+	else
+		set_own_dir(argv[0]);
 
 	i = 0;
 
