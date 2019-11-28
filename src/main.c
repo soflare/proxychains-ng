@@ -58,7 +58,8 @@ static void set_own_dir(const char *argv0) {
 		memcpy(own_dir, ".", 2);
 #endif
 	else {
-		memcpy(own_dir, argv0, l - 1);
+		if (l > 1) --l;
+		memcpy(own_dir, argv0, l);
 		own_dir[l] = 0;
 	}
 }
